@@ -1,0 +1,7 @@
+extends layout
+
+block content
+    form(action='/api/user/login' method='post')
+        input(name='userName')
+        input(name='password' type='password')
+        button(type='submit') 提交
