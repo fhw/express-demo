@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var jsSHA = require('jssha');
+const userControllers = require('./../controllers/user');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
@@ -11,6 +12,12 @@ router.get('/', function(req, res, next) {
 router.get('/login', function(req, res, next) {
   res.render('login', { title: '登录' });
 });
+
+router.get('/register', function(req, res, next) {
+  res.render('register', { title: '注册' });
+})
+
+router.get('/myInfo', userControllers.myInfo)
 
 // 校验微信公众号服务器配置token
 router.get('/validateWechatToken', function (req, res, next) {
