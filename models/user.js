@@ -5,6 +5,7 @@ exports.UserSchema = new Schema({
   name: {type: String},
   sex: {type: String},
   age: {type: Number},
+  email: {type: String},
   address: {type: String},
   cellphone: {type: String},
   password: {type: String, default: '123456'},

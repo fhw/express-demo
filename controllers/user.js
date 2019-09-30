@@ -5,14 +5,37 @@ exports.login = function (req, res) {
   const name = req.body.userName
   const password = req.body.password
 
-  userModel.findOne({name, password}, function (err, doc) {
-    const token = jwt.sign({_id: doc._id}, config.jwt.privateKey, {expiresIn:60})
+  userModel.findOne({
+    $or: [{cellphone: name}, {email: name}]
+  }, function (err, doc) {
+    if (err) {
+      res.json({
+        code: 400,
+        msg: err
+      })
+    }
+
+    if (!doc) {
+      res.json({
+        code: 400,
+        msg: '用户不存在！'
+      })
+    }
+
+    if (doc.password !== password) {
+      res.json({
+        code: 400,
+        msg: '用户密码错误！'
+      })
+    }
+
+    const token = jwt.sign({_id: doc._id}, config.jwt.privateKey, {expiresIn: 60})
     doc.token = token
     doc.editTime = Date.now()
     doc.save()
     res.cookie('token', token)
-    res.send({
-      code: '200',
+    res.json({
+      code: 200,
       msg: '请求成功',
       result: token
     })

@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "start": "supervisor ./bin/www",
-    "dev": "SET DEBUG=express-demo:* & npm start"
+    "dev": "cross-env NODE_ENV=dev npm start",
+    "prod": "cross-env NODE_ENV=production npm node ./bin/www"
   },
   "dependencies": {
     "axios": "^0.19.0",
@@ -22,9 +23,11 @@
     "node-sass-middleware": "0.11.0",
     "pug": "2.0.0-beta11",
     "redis": "^2.8.0",
-    "request": "^2.88.0"
+    "request": "^2.88.0",
+    "winston": "^3.2.1"
   },
   "devDependencies": {
+    "cross-env": "^6.0.0",
     "jssha": "^2.3.1"
   }
 }
