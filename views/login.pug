@@ -2,13 +2,15 @@ extends layout
 
 block content
     div(id='app')
-        el-form
-            el-form-item(label='账号')
-                el-input(v-model='userName' type='text' placeholder='手机号码/邮箱地址')
-            el-form-item(label='密码')
-                el-input(v-model='password' type='password' placeholder='登录密码')
-            el-form-item
-                el-button(type='primary' @click='login') 提交
+        div(class='form-box_register')
+            el-form
+                el-form-item(label='账号')
+                    el-input(v-model='userName' type='text' placeholder='手机号码/邮箱地址')
+                el-form-item(label='密码')
+                    el-input(v-model='password' type='password' placeholder='登录密码')
+                el-form-item
+                    el-button(type='primary' @click='login') 登录
+                    el-button(type='text' @click='toRegister') 注册
     script.
       new Vue({
         el: '#app',
@@ -27,13 +29,16 @@ block content
               password: this.password
             }).then(function (res) {
               const resData = res.data
-              if(resData.code === 200){
+              if (resData.code === 200) {
                 location.href = '/'
               } else {
                 _this.$message(resData.msg)
               }
               console.log(res.data)
             })
+          },
+          toRegister () {
+            location.href = '/register'
           }
         }
       })

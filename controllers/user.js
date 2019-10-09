@@ -1,6 +1,11 @@
+const response = require('../common/response')
 const userModel = require('./../models').User
 const jwt = require('jsonwebtoken')
 const config = require('./../config')
+const regexp = require('./../common/regexp')
+const logger = require('./../common/logger')
+
+// 登录
 exports.login = function (req, res) {
   const name = req.body.userName
   const password = req.body.password
@@ -42,25 +47,59 @@ exports.login = function (req, res) {
   })
 }
 
+// 注册
 exports.register = function (req, res) {
   const name = req.body.userName
   const password = req.body.password
+  const cellphoneValid = regexp.cellphone.test(name)
+  const emailValid = regexp.email.test(name)
 
-  const user = new userModel({
-    name,
-    password
+  if (!name || name === 0) {
+    res.json(response.error({msg: '账号不能为空'}))
+    return false
+  }
+
+  if (!(cellphoneValid || emailValid)) {
+    res.json(response.error({msg: '账号格式不正确'}))
+    return false
+  }
+
+  if (!password || password === 0) {
+    res.json(response.error({msg: '密码不能为空'}))
+    return false
+  }
+
+  if (!regexp.password.test(password)) {
+    res.json(response.error({msg: '密码格式不正确'}))
+    return false
+  }
+
+  let isExist = false
+
+  userModel.exists({
+    $or: [{cellphone: name}, {email: name}]
+  }, function (err, exist) {
+    if (err) throw err
+    isExist = exist
   })
 
-  user.save(function (err) {
+  if (isExist) {
+    res.json(response.error({msg: '该用户已注册'}))
+    return false
+  }
+
+  let user = {}
+
+  if(cellphoneValid){
+    user.cellphone = name
+  } else if(emailValid){
+    user.email = name
+  }
+  user.password = password
+
+  userModel.create(user, function (err) {
     if (err) throw err
-    res.json({
-      code: '200',
-      msg: '请求成功',
-      result: {
-        name,
-        password
-      }
-    })
+    res.json(response.succ({msg: '注册成功！'}))
   })
 }
 

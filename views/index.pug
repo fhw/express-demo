@@ -1,7 +1,18 @@
 extends layout
 
 block content
-  h1= title
-  p Welcome to #{title}
-
-  a(href='baidu.com') 百度
+  div(id='app')
+    el-menu(mode='horizontal')
+      el-menu-item(index='0') {{title}}
+      el-menu-item(index='1') 个人中心
+  script.
+    new Vue({
+      el: '#app',
+      data () {
+        return {
+          title: '#{title}'
+        }
+      },
+      create () {},
+      methods: {}
+    })

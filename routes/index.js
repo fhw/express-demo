@@ -1,12 +1,12 @@
 var express = require('express')
+var config = require('../config')
 var router = express.Router()
 var jsSHA = require('jssha')
 const userControllers = require('./../controllers/user')
 
 /* GET home page. */
 router.get('/', function (req, res, next) {
-  res.render('index', {title: 'Express'})
-  // res.send('Express')
+  res.render('index', {title: config.name})
 })
 
 router.get('/login', function (req, res, next) {
