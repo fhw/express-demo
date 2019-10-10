@@ -30,7 +30,10 @@ block content
             }).then(function (res) {
               const resData = res.data
               if (resData.code === 200) {
-                location.href = '/'
+                _this.$message(resData.msg)
+                setTimeout(function () {
+                  location.href = '/'
+                }, 2000)
               } else {
                 _this.$message(resData.msg)
               }

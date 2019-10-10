@@ -6,49 +6,42 @@ const regexp = require('./../common/regexp')
 const logger = require('./../common/logger')
 
 // 登录
-exports.login = function (req, res) {
+exports.login = async function (req, res) {
   const name = req.body.userName
   const password = req.body.password
 
-  userModel.findOne({
+  await userModel.findOne({
     $or: [{cellphone: name}, {email: name}]
-  }, function (err, doc) {
+  }).then(doc => {
+    if (!doc) {
+      res.json(response.error({msg: '用户不存在！'}))
+      return false
+    }
+
+    if (doc.password !== password) {
+      res.json(response.error({msg: '用户密码错误！'}))
+      return false
+    }
+
+    const token = jwt.sign({_id: doc._id}, config.jwt.privateKey, {expiresIn: config.jwt.expiresIn})
+    doc.token = token
+    doc.loginTime = Date.now()
+    doc.save()
+
+    res.cookie('token', token)
+    res.json(response.succ({msg: '登录成功', result: token}))
+  }).catch(err => {
     if (err) {
       res.json({
         code: 400,
         msg: err
       })
     }
-
-    if (!doc) {
-      res.json({
-        code: 400,
-        msg: '用户不存在！'
-      })
-    }
-
-    if (doc.password !== password) {
-      res.json({
-        code: 400,
-        msg: '用户密码错误！'
-      })
-    }
-
-    const token = jwt.sign({_id: doc._id}, config.jwt.privateKey, {expiresIn: 60})
-    doc.token = token
-    doc.editTime = Date.now()
-    doc.save()
-    res.cookie('token', token)
-    res.json({
-      code: 200,
-      msg: '请求成功',
-      result: token
-    })
   })
 }
 
 // 注册
-exports.register = function (req, res) {
+exports.register = async function (req, res) {
   const name = req.body.userName
   const password = req.body.password
   const cellphoneValid = regexp.cellphone.test(name)
@@ -76,11 +69,12 @@ exports.register = function (req, res) {
 
   let isExist = false
 
-  userModel.exists({
+  await userModel.exists({
     $or: [{cellphone: name}, {email: name}]
-  }, function (err, exist) {
-    if (err) throw err
+  }).then(exist => {
     isExist = exist
+  }).catch(err => {
+    logger.error(err)
   })
 
   if (isExist) {
@@ -90,16 +84,17 @@ exports.register = function (req, res) {
 
   let user = {}
 
-  if(cellphoneValid){
+  if (cellphoneValid) {
     user.cellphone = name
-  } else if(emailValid){
+  } else if (emailValid) {
     user.email = name
   }
   user.password = password
 
-  userModel.create(user, function (err) {
-    if (err) throw err
+  await userModel.create(user).then(() => {
     res.json(response.succ({msg: '注册成功！'}))
+  }).catch(err => {
+    logger.error(err)
   })
 }
 
